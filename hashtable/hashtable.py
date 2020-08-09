@@ -7,7 +7,6 @@ class HashTableEntry:
         self.value = value
         self.next = None
 
-
 # Hash table can't have fewer than this many slots
 MIN_CAPACITY = 8
 
@@ -19,10 +18,13 @@ class HashTable:
 
     Implement this.
     """
+    FNV_OFFSET_BASIS = 0x1f
+    FNV_PRIME = 0x3B8BBA37
 
-    def __init__(self, capacity):
-        # Your code here
-
+    def __init__(self, capacity: int):
+        self.capacity: int = capacity
+        self.list = [None] * capacity
+        self.item_count = 0
 
     def get_num_slots(self):
         """
@@ -34,7 +36,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.capacity
 
 
     def get_load_factor(self):
@@ -43,7 +45,7 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        return self.item_count / self.capacity
 
 
     def fnv1(self, key):
@@ -52,8 +54,13 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
+        curr_hash = HashTable.FNV_OFFSET_BASIS
+        for letter in key.encode():
+            curr_hash *= HashTable.FNV_PRIME
+            curr_hash ^= letter
+            curr_hash &= 0xffffffffffffffff
 
-        # Your code here
+        return curr_hash
 
 
     def djb2(self, key):
@@ -62,7 +69,7 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
+        pass
 
 
     def hash_index(self, key):
@@ -70,8 +77,23 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
+
+
+    def __put_sans_check(self, new_entry: HashTableEntry):
+        index = self.hash_index(new_entry.key)
+        entry = self.list[index]
+        if entry is None:
+            self.list[index] = new_entry
+        else:
+            while entry.next is not None and entry.key != new_entry.key:
+                entry = entry.next
+            if entry.key == new_entry.key:
+                entry.value = new_entry.value
+            else:
+                entry.next = new_entry
+
 
     def put(self, key, value):
         """
@@ -81,7 +103,13 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        self.item_count += 1
+        if self.get_load_factor() >= 0.7:
+            self.resize(self.capacity * 2)
+
+        entry = HashTableEntry(key, value)
+
+        self.__put_sans_check(entry)
 
 
     def delete(self, key):
@@ -92,7 +120,18 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        index = self.hash_index(key)
+        entry = self.list[index]
+        if entry.key == key:
+            self.list[index] = entry.next
+        else:
+            while entry.next.key != key and entry.next is not None:
+                entry = entry.next
+            if entry.next is None:
+                print(f'key "{key}" is not in table to delete')
+            else:
+                entry.next = entry.next.next
+                self.item_count -= 1
 
 
     def get(self, key):
@@ -103,7 +142,11 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        entry = self.list[self.hash_index(key)]
+        while entry is not None and entry.key != key:
+            entry = entry.next
+
+        return entry.value if entry is not None else None
 
 
     def resize(self, new_capacity):
@@ -113,7 +156,26 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        old_list = self.list
+        self.capacity = new_capacity
+        self.list = [None] * self.capacity
+
+        def place_entry(entry: HashTableEntry) -> None:
+            nonlocal self
+
+            if entry is None:
+                return
+            else:
+                old_next = entry.next
+                entry.next = None
+                self.__put_sans_check(entry)
+                place_entry(old_next)
+
+
+        for entry in old_list:
+            place_entry(entry)
+
+
 
 
 
