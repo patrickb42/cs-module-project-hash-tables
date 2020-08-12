@@ -7,12 +7,12 @@ def expensive_seq(x, y, z):
     key = f'{x}, {y}, {z}'
     if key in cache:
         return cache[key]
-    elif x <= 0:
-        return_value = y + z
-    else:
-        return_value = expensive_seq(x - 1, y - 1, z)\
+    elif x > 0:
+        return_value = expensive_seq(x - 1, y + 1, z)\
             + expensive_seq(x - 2, y + 2, z * 2)\
             + expensive_seq(x - 3, y + 3, z * 3)
+    else:
+        return_value = y + z
 
     cache[key] = return_value
     return return_value
