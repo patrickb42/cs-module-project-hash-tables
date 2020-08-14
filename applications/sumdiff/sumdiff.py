@@ -11,7 +11,7 @@ q = set(range(1, 200))
 def f(x):
     return x * 4 + 6
 
-def add_entry(
+def print_entries(
     a,
     f_a,
     b,
@@ -43,6 +43,6 @@ for (a_index, a) in enumerate(SORTED_Q):
             f_d = f(d)
             f_c = f_a + f_b + f_d
             if f_c in C_MAP:
-                add_entry(a, f_a, b, f_b, C_MAP[f_c], f_c, d, f_d)
+                print_entries(a, f_a, b, f_b, C_MAP[f_c], f_c, d, f_d)
             elif f_c > HIGHEST:
                 break
