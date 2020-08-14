@@ -4,7 +4,7 @@ f(a) + f(b) = f(c) - f(d)
 """
 
 # q = set(range(1, 10))
-q = set(range(1, 400))
+q = set(range(1, 200))
 # q = set((1, 3, 4, 7, 12))
 
 
