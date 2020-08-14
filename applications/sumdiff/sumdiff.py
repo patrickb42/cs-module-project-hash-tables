@@ -34,7 +34,7 @@ def add_entry(
 SORTED_Q = list(q)
 SORTED_Q.sort()
 C_MAP = {f(c): c for c in SORTED_Q}
-HIGHEST = f(SORTED_Q[-1])
+HIGHEST = f(max(C_MAP.keys()))
 for (a_index, a) in enumerate(SORTED_Q):
     f_a = f(a)
     for (b_index, b) in enumerate(SORTED_Q[a_index : ]):
